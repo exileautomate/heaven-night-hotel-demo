@@ -1,0 +1,314 @@
+# System Prompt — Advanced Hotel Room Booking Tracker Platform
+
+## 1. System Overview
+
+This system is a **real-time, two-sided room inventory and booking visibility platform** designed to eliminate manual communication between hotels and travel agencies.
+
+The platform enables:
+
+* Hotels to manage **room inventory at an individual room level**
+* Travel agencies to access **live, accurate booking data**
+* A centralized system acting as the **single source of truth for room availability**
+
+This system is **not a booking engine**, but a **real-time inventory tracking system**.
+
+---
+
+## 2. System Objectives
+
+* Remove dependency on phone calls and manual verification
+* Provide real-time visibility of room availability
+* Ensure accuracy by tracking **actual room-level bookings**
+* Reduce miscommunication and overbooking risks
+* Enable faster decision-making for travel agencies
+
+---
+
+## 3. User Roles & Permissions
+
+### 3.1 Hotel User (Inventory Manager)
+
+Represents authorized hotel staff responsible for managing room inventory.
+
+#### Permissions:
+
+* Create, edit, and delete room categories
+* Define and manage room inventory
+* Assign and manage individual room numbers
+* Add and remove bookings at the room level
+* View real-time booking and availability summary
+
+#### Restrictions:
+
+* Can only access and modify their own hotel data
+* Cannot view or modify other hotels
+
+---
+
+### 3.2 Travel Agency User (Viewer)
+
+Represents travel agents or agencies consuming availability data.
+
+#### Permissions:
+
+* View list of registered hotels
+* Access room categories per hotel
+* View real-time booking status
+* See detailed room-level availability
+
+#### Restrictions:
+
+* No create, update, or delete permissions
+* Read-only access across the platform
+
+---
+
+## 4. Core System Architecture Concept
+
+The system operates on **room-level state management**, not abstract availability.
+
+### Key Principle:
+
+Each room exists as an independent entity with its own state.
+
+#### Room States:
+
+* Booked
+* Available
+
+⚠️ There is **no manual status toggle** such as “Fully Booked” or “Available”.
+
+All availability is **derived automatically** from actual room bookings.
+
+---
+
+## 5. Data Model Structure
+
+### 5.1 Hotel Entity
+
+* Hotel ID
+* Hotel Name
+* Location (optional)
+* Created At / Updated At
+
+---
+
+### 5.2 Room Category Entity
+
+* Category ID
+* Hotel ID (relationship)
+* Category Name (e.g., Deluxe Room)
+* Description (optional)
+* Total Room Count (derived or validated)
+* Created At / Updated At
+
+---
+
+### 5.3 Room Entity (Critical Layer)
+
+Each room is an individual record.
+
+* Room ID
+* Category ID
+* Room Number (e.g., 101, 102)
+* Status:
+
+  * Booked
+  * Available
+* Last Updated Timestamp
+
+---
+
+### 5.4 Booking Representation
+
+⚠️ This system does NOT require full booking details (like guest name, dates, etc.)
+
+Only:
+
+* Room Number
+* Booking State (Booked / Unbooked)
+
+---
+
+## 6. Functional Modules
+
+---
+
+### 6.1 Room Category Management Module
+
+#### Actions:
+
+* Create new category
+* Define category name
+* Define number of rooms
+* Assign room numbers manually or in bulk
+
+#### Example:
+
+Category: Deluxe Room
+Rooms:
+101, 102, 103, 104, 105, 106, 107
+
+---
+
+### 6.2 Room Inventory Initialization
+
+When a category is created:
+
+* System generates room entries
+* All rooms default to:
+  → Status: Available
+
+---
+
+### 6.3 Booking Management Module
+
+#### Actions:
+
+* Select one or multiple rooms
+* Mark selected rooms as "Booked"
+* Unmark rooms to revert to "Available"
+
+#### Example Operation:
+
+User selects:
+
+* Room 101
+* Room 102
+* Room 103
+
+System updates:
+
+* These rooms → Booked
+
+---
+
+### 6.4 Availability Calculation Engine
+
+All availability is computed dynamically.
+
+#### Formula:
+
+Available Rooms = Total Rooms - Booked Rooms
+
+#### Example:
+
+Total Rooms = 7
+Booked Rooms = 3
+Available Rooms = 4
+
+#### Derived States:
+
+* If Available Rooms = 0 → Fully Booked (display-only state)
+* If Available Rooms > 0 → Available
+
+⚠️ These are **computed outputs**, not stored values
+
+---
+
+### 6.5 Travel Agency Viewing Module
+
+#### Data Display Structure:
+
+For each hotel:
+
+Room Category: Deluxe Room
+
+* Total Rooms: 7
+* Booked Rooms: 3
+* Available Rooms: 4
+* Booked Room Numbers: 101, 102, 103
+* Available Room Numbers: 104, 105, 106, 107
+
+#### Key Characteristics:
+
+* Real-time data rendering
+* No manual refresh required (preferred: live sync or polling)
+* Clear distinction between booked and available rooms
+
+---
+
+## 7. System Rules & Constraints
+
+1. **Room-level tracking is mandatory**
+
+   * No aggregate-only updates allowed
+
+2. **No manual availability toggles**
+
+   * All states must be derived
+
+3. **Data integrity enforcement**
+
+   * A room cannot be double-booked
+   * A room must belong to exactly one category
+
+4. **Real-time synchronization**
+
+   * Any update by hotel must reflect immediately for agencies
+
+5. **Access isolation**
+
+   * Hotels can only manage their own data
+
+6. **Consistency**
+
+   * Room count must match actual room records
+
+---
+
+## 8. Real-Time Update Flow
+
+1. Hotel performs action (book/unbook room)
+2. System updates room record(s)
+3. Availability engine recalculates metrics
+4. Database reflects updated state
+5. Travel agency interface fetches updated data
+6. UI updates instantly
+
+---
+
+## 9. Edge Cases Handling
+
+* Attempt to book already booked room → Reject action
+* Room number duplication → Prevent creation
+* Category with zero rooms → Not allowed
+* Deleting a category with booked rooms → Require confirmation or restriction
+* Partial updates failure → Rollback mechanism required
+
+---
+
+## 10. Scalability Considerations
+
+* System should support:
+
+  * Multiple hotels
+  * Multiple categories per hotel
+  * Hundreds of rooms per category
+
+* Future extensibility:
+
+  * Add booking dates
+  * Add customer details
+  * Convert into full booking engine
+
+---
+
+## 11. Key Design Philosophy
+
+* **Accuracy over simplicity**
+* **Real-world modeling over abstraction**
+* **Derived state over manual input**
+* **Single source of truth**
+* **Minimal user effort, maximum clarity**
+
+---
+
+## 12. Final Outcome
+
+This system ensures:
+
+* Complete transparency in room availability
+* Elimination of manual communication delays
+* Real-time operational efficiency
+* Foundation for a scalable booking ecosystem

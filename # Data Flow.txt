@@ -1,0 +1,120 @@
+# Data Flow — Room-Level Booking System
+
+## Step 1: Setup Room Categories
+
+Actor: Hotel
+
+1. Hotel creates a room category
+   Example: Deluxe Room
+
+2. Inputs:
+   - Total Rooms: 7
+   - Room Numbers:
+     101, 102, 103, 104, 105, 106, 107
+
+3. Data stored in database
+
+---
+
+## Step 2: Add Bookings
+
+Actor: Hotel
+
+1. Hotel selects room category
+2. Marks specific rooms as booked
+
+Example:
+Booked:
+- 101
+- 102
+- 103
+
+3. System stores booked room numbers
+
+---
+
+## Step 3: System Calculation
+
+System automatically calculates:
+
+- Total Rooms = 7
+- Booked Rooms = Count(booked rooms) = 3
+- Available Rooms = 7 - 3 = 4
+
+No manual status input required
+
+---
+
+## Step 4: Data Storage Structure
+
+Hotel:
+- Name: Hyatt Hotel
+
+Room Category:
+- Name: Deluxe Room
+- Total Rooms: 7
+
+Rooms:
+- 101 → Booked
+- 102 → Booked
+- 103 → Booked
+- 104 → Available
+- 105 → Available
+- 106 → Available
+- 107 → Available
+
+---
+
+## Step 5: Travel Agency View
+
+Actor: Travel Agency
+
+1. Opens platform
+2. Selects hotel
+3. System fetches data
+
+Displays:
+
+Room Type: Deluxe Room  
+Total: 7  
+Booked: 3  
+Available: 4  
+Booked Rooms: 101, 102, 103  
+
+---
+
+## Step 6: Real-Time Sync
+
+Flow:
+
+Hotel books room → Database updates →  
+System recalculates →  
+Travel Agency sees updated data instantly
+
+---
+
+## Step 7: Access Control
+
+Hotel:
+- Create categories
+- Add/remove bookings
+
+Travel Agency:
+- View only
+
+---
+
+## Summary Flow
+
+Hotel → Adds Room Categories  
+      → Books Rooms (by number)  
+            ↓  
+        Database  
+            ↓  
+Travel Agency → Views Live Availability
+
+---
+
+## Key Principle
+
+Track bookings at **room level**, not status level.

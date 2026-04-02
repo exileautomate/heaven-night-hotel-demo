@@ -1,0 +1,9 @@
+{
+  "name": "heaven-height-hotel",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "backend": "cd backend && node server.js",
+    "install-all": "cd backend && npm install && cd ../frontend && npm install"
+  }
+}
