@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
@@ -252,3 +253,5 @@ server.listen(PORT, () => {
   console.log(`🏨 Heaven Night API → http://localhost:${PORT}`);
   console.log(`📡 Ready`);
 });
+
+module.exports = app;
